@@ -2,7 +2,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { createStore, StoreError } from './store.mjs';
 export function migaApi({development=false,dataDir}={}){
  const store=createStore({dataDir});const buckets=new Map();
- function authorized(req){const secret=process.env.MIGA_ADMIN_TOKEN;if(!secret){const ip=String(req.socket.remoteAddress||'');return development&&(ip==='127.0.0.1'||ip==='::1'||ip==='::ffff:127.0.0.1');}const given=String(req.headers.authorization||'').replace(/^Bearer /,'');return secret.length>=20&&given.length===secret.length&&timingSafeEqual(Buffer.from(given),Buffer.from(secret));}
+ function authorized(req){const secret=process.env.MIGA_ADMIN_TOKEN;if(!secret)return development;const given=String(req.headers.authorization||'').replace(/^Bearer /,'');return secret.length>=20&&given.length===secret.length&&timingSafeEqual(Buffer.from(given),Buffer.from(secret));}
  return async(req,res,next)=>{
   const url=new URL(req.url,'http://localhost');if(!url.pathname.startsWith('/api/'))return next();
   res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
